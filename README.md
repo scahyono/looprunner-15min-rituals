@@ -7,6 +7,7 @@ LoopRunner is a minimalist single-page life loop game. Each loop is a bite-sized
 2. Open `index.html` directly in any modern web browser.
 
 No build process or dependencies are required.
+Demo, if available on https://scahyono.github.io/looprunner-15min-rituals/index.html
 
 ## Deploying on GitHub Pages
 1. Commit and push the project to a GitHub repository.
