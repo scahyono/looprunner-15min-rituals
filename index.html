@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoopRunner: 15-Minute Rituals</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f3f4f6;
+      --card-bg: #ffffffaa;
+      --dark-text: #1f2933;
+      --accent: #6c63ff;
+      --accent-2: #22c55e;
+      --shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+      color: var(--dark-text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      max-width: 700px;
+      margin-bottom: 2rem;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      letter-spacing: -1px;
+    }
+
+    p.lead {
+      margin: 0;
+      color: #4b5563;
+      font-size: 1.05rem;
+    }
+
+    .dashboard {
+      width: min(900px, 100%);
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .score {
+      margin-bottom: 1rem;
+    }
+
+    .score:last-child {
+      margin-bottom: 0;
+    }
+
+    .score-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .score-bar {
+      width: 100%;
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .score-fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      transition: width 0.4s ease;
+    }
+
+    .score-fill.health {
+      background: #10b981;
+    }
+
+    .score-fill.wealth {
+      background: #3b82f6;
+    }
+
+    .score-fill.spirit {
+      background: #ec4899;
+    }
+
+    .loop-grid {
+      width: min(1100px, 100%);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .loop-card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .loop-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+    }
+
+    .card-header {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .icon {
+      font-size: 2.2rem;
+      background: #eef2ff;
+      border-radius: 18px;
+      padding: 0.8rem;
+      box-shadow: inset 0 0 15px rgba(99, 102, 241, 0.15);
+    }
+
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+
+    .card-header p {
+      margin: 0.2rem 0 0;
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+
+    .timer {
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #6366f1, #a855f7);
+      transition: width 0.5s ease;
+    }
+
+    button.start-btn {
+      width: 100%;
+      border: none;
+      background: var(--accent);
+      color: white;
+      padding: 0.85rem;
+      border-radius: 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+      box-shadow: 0 10px 20px rgba(99, 102, 241, 0.25);
+    }
+
+    button.start-btn:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    button.start-btn:not(:disabled):hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 18px 30px rgba(99, 102, 241, 0.3);
+    }
+
+    button.start-btn:not(:disabled):active {
+      transform: scale(0.98);
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.95rem;
+      margin-top: 1rem;
+      color: #4b5563;
+    }
+
+    .success-msg {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--accent-2);
+      margin-top: 0.6rem;
+      min-height: 1.2rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .success-msg.visible {
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1.5rem 1rem 3rem;
+      }
+
+      .loop-card {
+        padding: 1.25rem;
+      }
+
+      .stats {
+        flex-direction: column;
+        gap: 0.3rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>LoopRunner: 15-Minute Rituals</h1>
+    <p class="lead">Cycle through purposeful rituals, keep your streak alive, and score your day across health, wealth, and spirit.</p>
+  </header>
+
+  <section class="dashboard" aria-label="Daily dashboard">
+    <div class="score" aria-live="polite">
+      <div class="score-header">
+        <span>Health</span>
+        <span data-score-text="health">0</span>
+      </div>
+      <div class="score-bar">
+        <div class="score-fill health" data-score-bar="health"></div>
+      </div>
+    </div>
+    <div class="score" aria-live="polite">
+      <div class="score-header">
+        <span>Wealth / Work</span>
+        <span data-score-text="wealth">0</span>
+      </div>
+      <div class="score-bar">
+        <div class="score-fill wealth" data-score-bar="wealth"></div>
+      </div>
+    </div>
+    <div class="score" aria-live="polite">
+      <div class="score-header">
+        <span>Spirit</span>
+        <span data-score-text="spirit">0</span>
+      </div>
+      <div class="score-bar">
+        <div class="score-fill spirit" data-score-bar="spirit"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="loop-grid" id="loops" aria-live="polite"></section>
+
+  <script>
+    const loops = [
+      { id: 'health', name: 'Health Loop', icon: '🌱', minutes: 15, category: 'health' },
+      { id: 'dm', name: 'DM Loop', icon: '💬', minutes: 15, category: 'wealth' },
+      { id: 'focus', name: 'Focus Loop', icon: '🧠', minutes: 15, category: 'wealth' },
+      { id: 'baraka', name: 'Baraka Loop', icon: '🕊️', minutes: 5, category: 'spirit' },
+    ];
+
+    const loopLookup = Object.fromEntries(loops.map(loop => [loop.id, loop]));
+    const loopElements = {};
+    const timers = {};
+    const messageTimers = {};
+    let state = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      state = loadState();
+      resetIfNewDay();
+      renderLoops();
+      updateDashboard();
+    });
+
+    function getToday() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function getYesterday() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function loadState() {
+      const today = getToday();
+      const defaultState = {
+        lastDate: today,
+        loops: loops.reduce((acc, loop) => {
+          acc[loop.id] = { streak: 0, completedToday: 0, lastCompletedDate: null };
+          return acc;
+        }, {}),
+      };
+
+      try {
+        const raw = localStorage.getItem('loopRunnerState');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const hydrated = { ...defaultState, ...parsed };
+          hydrated.loops = { ...defaultState.loops, ...(parsed.loops || {}) };
+          loops.forEach(loop => {
+            hydrated.loops[loop.id] = {
+              ...defaultState.loops[loop.id],
+              ...(parsed.loops ? parsed.loops[loop.id] : {}),
+            };
+          });
+          if (!hydrated.lastDate) hydrated.lastDate = today;
+          return hydrated;
+        }
+      } catch (error) {
+        console.warn('Unable to read saved state', error);
+      }
+      return defaultState;
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem('loopRunnerState', JSON.stringify(state));
+      } catch (error) {
+        console.warn('Unable to save state', error);
+      }
+    }
+
+    function resetIfNewDay() {
+      const today = getToday();
+      if (state.lastDate === today) return;
+
+      const yesterday = getYesterday();
+      loops.forEach(loop => {
+        const loopState = state.loops[loop.id];
+        loopState.completedToday = 0;
+        if (loopState.lastCompletedDate !== yesterday) {
+          loopState.streak = 0;
+        }
+      });
+
+      state.lastDate = today;
+      saveState();
+    }
+
+    function renderLoops() {
+      const container = document.getElementById('loops');
+      container.innerHTML = '';
+      loops.forEach(loop => {
+        const card = document.createElement('article');
+        card.className = 'loop-card';
+        card.dataset.loopId = loop.id;
+        const description = getDescription(loop);
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="icon" aria-hidden="true">${loop.icon}</div>
+            <div>
+              <h3>${loop.name}</h3>
+              <p>${description}</p>
+            </div>
+          </div>
+          <div class="timer" data-timer>00:00</div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-bar" data-progress></div>
+          </div>
+          <button class="start-btn" data-start>Start ${loop.minutes} min</button>
+          <div class="stats">
+            <span>Streak: <strong data-streak>0</strong></span>
+            <span>Done today: <strong data-done>0</strong></span>
+          </div>
+          <div class="success-msg" data-success></div>
+        `;
+        container.appendChild(card);
+
+        loopElements[loop.id] = {
+          card,
+          timer: card.querySelector('[data-timer]'),
+          progress: card.querySelector('[data-progress]'),
+          progressTrack: card.querySelector('.progress-track'),
+          startBtn: card.querySelector('[data-start]'),
+          streak: card.querySelector('[data-streak]'),
+          done: card.querySelector('[data-done]'),
+          success: card.querySelector('[data-success]'),
+        };
+
+        loopElements[loop.id].startBtn.addEventListener('click', () => startLoop(loop.id));
+        updateLoopStats(loop.id);
+      });
+    }
+
+    function getDescription(loop) {
+      const base = {
+        health: 'Move, breathe, and energize your body.',
+        wealth: 'Show up for focused work that compounds.',
+        spirit: 'Ground yourself in gratitude and peace.',
+      };
+      return base[loop.category] || 'A focused ritual to keep your loop alive.';
+    }
+
+    function updateLoopStats(loopId) {
+      const loopState = state.loops[loopId];
+      const elements = loopElements[loopId];
+      const loop = loopLookup[loopId];
+      if (!elements) return;
+
+      elements.streak.textContent = loopState.streak;
+      elements.done.textContent = loopState.completedToday;
+
+      if (!timers[loopId]) {
+        elements.timer.textContent = formatTime(loop.minutes * 60);
+        elements.progress.style.width = '0%';
+        elements.progressTrack.setAttribute('aria-valuenow', '0');
+        elements.startBtn.disabled = false;
+        elements.startBtn.textContent = `Start ${loop.minutes} min`;
+      }
+    }
+
+    function startLoop(loopId) {
+      if (timers[loopId]) return;
+      const loop = loopLookup[loopId];
+      const elements = loopElements[loopId];
+      if (!loop || !elements) return;
+
+      const totalSeconds = loop.minutes * 60;
+      timers[loopId] = {
+        remaining: totalSeconds,
+        interval: setInterval(() => tickLoop(loopId, totalSeconds), 1000),
+      };
+
+      elements.startBtn.disabled = true;
+      elements.startBtn.textContent = 'Loop running…';
+      elements.success.classList.remove('visible');
+      updateTimerDisplay(loopId, totalSeconds);
+    }
+
+    function tickLoop(loopId, totalSeconds) {
+      const timerData = timers[loopId];
+      const elements = loopElements[loopId];
+      if (!timerData || !elements) return;
+
+      timerData.remaining -= 1;
+      const remaining = Math.max(timerData.remaining, 0);
+      updateTimerDisplay(loopId, totalSeconds);
+
+      if (remaining <= 0) {
+        clearInterval(timerData.interval);
+        delete timers[loopId];
+        completeLoop(loopId);
+      }
+    }
+
+    function updateTimerDisplay(loopId, totalSeconds) {
+      const timerData = timers[loopId];
+      const elements = loopElements[loopId];
+      const loop = loopLookup[loopId];
+      if (!elements) return;
+
+      const remaining = timerData ? Math.max(timerData.remaining, 0) : totalSeconds;
+      elements.timer.textContent = formatTime(remaining);
+
+      const progressPercent = timerData
+        ? ((totalSeconds - remaining) / totalSeconds) * 100
+        : 0;
+      elements.progress.style.width = `${progressPercent}%`;
+      elements.progressTrack.setAttribute('aria-valuenow', progressPercent.toFixed(0));
+
+      if (!timerData) {
+        elements.progress.style.transition = 'width 0.5s ease';
+        elements.startBtn.disabled = false;
+        elements.startBtn.textContent = `Start ${loop.minutes} min`;
+      }
+    }
+
+    function completeLoop(loopId) {
+      const loopState = state.loops[loopId];
+      const today = getToday();
+      const yesterday = getYesterday();
+
+      if (loopState.lastCompletedDate === today) {
+        // Already counted today, only increment completedToday
+        loopState.completedToday += 1;
+      } else {
+        if (loopState.lastCompletedDate === yesterday) {
+          loopState.streak += 1;
+        } else {
+          loopState.streak = 1;
+        }
+        loopState.completedToday += 1;
+        loopState.lastCompletedDate = today;
+      }
+
+      saveState();
+      updateLoopStats(loopId);
+      updateDashboard();
+      showSuccess(loopId);
+    }
+
+    function showSuccess(loopId) {
+      const elements = loopElements[loopId];
+      if (!elements) return;
+      elements.success.textContent = 'Loop complete! +1 to your streak.';
+      elements.success.classList.add('visible');
+      clearTimeout(messageTimers[loopId]);
+      messageTimers[loopId] = setTimeout(() => {
+        elements.success.classList.remove('visible');
+      }, 2500);
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60)
+        .toString()
+        .padStart(2, '0');
+      const s = Math.floor(seconds % 60)
+        .toString()
+        .padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateDashboard() {
+      const healthScore = state.loops.health.completedToday;
+      const wealthScore = state.loops.dm.completedToday + state.loops.focus.completedToday;
+      const spiritScore = state.loops.baraka.completedToday;
+
+      setScore('health', healthScore, 4);
+      setScore('wealth', wealthScore, 8);
+      setScore('spirit', spiritScore, 4);
+    }
+
+    function setScore(key, value, max) {
+      const textEl = document.querySelector(`[data-score-text="${key}"]`);
+      const barEl = document.querySelector(`[data-score-bar="${key}"]`);
+      if (!textEl || !barEl) return;
+      textEl.textContent = value;
+      const percentage = Math.min(100, (value / max) * 100);
+      barEl.style.width = `${percentage}%`;
+    }
+  </script>
+</body>
+</html>
